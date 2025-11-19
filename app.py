@@ -2,8 +2,12 @@ from flask import Flask, request, jsonify
 import pandas as pd
 from prophet import Prophet
 from datetime import datetime, timedelta
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
 
 # ---------------------------------------------------------
 # LOAD DATA
