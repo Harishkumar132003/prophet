@@ -1,0 +1,8 @@
+flask
+pandas
+prophet
+cmdstanpy
+numpy
+python-dateutil
+pytz
+matplotlib
