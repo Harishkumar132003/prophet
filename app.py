@@ -236,16 +236,30 @@ def predict_distillery():
             model = Prophet()
             model.fit(sku_df)
 
-            predict_start = datetime(year, from_month, 1)
-            predict_end = predict_start + pd.offsets.MonthEnd(1)
+            total_demand = 0
+            predict_year = year
+            predict_month = from_month
+        
+            for _ in range(2):   # 2 months
+                start = datetime(predict_year, predict_month, 1)
+                end = start + pd.offsets.MonthEnd(1)
+        
+                future_dates = pd.date_range(start, end)
+                forecast = model.predict(pd.DataFrame({"ds": future_dates}))
+        
+                # Add this month's predicted total
+                total_demand += float(forecast["yhat"].sum())
+        
+                # Move to next month
+                predict_month += 1
+                if predict_month > 12:
+                    predict_month = 1
+                    predict_year += 1
 
-            future_dates = pd.date_range(predict_start, predict_end)
-            forecast = model.predict(pd.DataFrame({"ds": future_dates}))
-
-            demand = float(forecast["yhat"].sum())
+            demand = total_demand
         else:
             demand = 0.0
-
+        
         # -----------------------------------------------------
         # STOCK CALCULATIONS
         # -----------------------------------------------------
@@ -287,7 +301,7 @@ def predict_distillery():
             "remaining_at_depot": remaining_at_depot,
             "remaining_at_retail": remaining_at_retail,
             "remaining_stock": remaining_stock,
-            "quantitytoraise": quantitytoraise
+            "quantityToManufacture": quantitytoraise
         })
 
     return jsonify(results)
